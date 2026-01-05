@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block title %}Checkout - Latagan{% endblock %}
+
+{% block content %}
+<div style="max-width: 900px; margin: 0 auto; padding: 2rem 1rem;">
+    <h1 style="color: var(--primary-dark); margin-bottom: 2rem;">Checkout</h1>
+
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+        <!-- Shipping & Payment -->
+        <div>
+            <form method="post" style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                {% csrf_token %}
+
+                <h2 style="color: var(--primary-dark); margin: 0 0 1.5rem 0; font-size: 1.3rem;">Shipping Address</h2>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; color: var(--primary-dark); font-weight: 600; margin-bottom: 0.5rem;">Full Name</label>
+                    <input type="text" value="{{ user.first_name }} {{ user.last_name }}" readonly style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 4px; background: #f9f9f9;">
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; color: var(--primary-dark); font-weight: 600; margin-bottom: 0.5rem;">Email</label>
+                    <input type="email" value="{{ user.email }}" readonly style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 4px; background: #f9f9f9;">
+                </div>
+
+                <h2 style="color: var(--primary-dark); margin: 2rem 0 1.5rem 0; font-size: 1.3rem;">Order Items</h2>
+
+                <div style="background: #f9f9f9; padding: 1.5rem; border-radius: 4px; margin-bottom: 2rem;">
+                    {% for cart_item in cart_items %}
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #ddd;">
+                        <div>
+                            <p style="color: var(--primary-dark); font-weight: 600; margin: 0;">{{ cart_item.item.title }}</p>
+                            <p style="color: #888; font-size: 0.9rem; margin: 0.3rem 0 0 0;">Qty: {{ cart_item.quantity }}</p>
+                        </div>
+                        <div style="text-align: right;">
+                            <p style="color: var(--secondary-pink); font-weight: 700; margin: 0;">${{ cart_item.get_subtotal|floatformat:2 }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <button type="submit" style="width: 100%; padding: 1rem; background: var(--secondary-pink); color: white; border: none; border-radius: 4px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: all 0.2s ease;">Complete Purchase</button>
+            </form>
+        </div>
+
+        <!-- Order Summary -->
+        <div>
+            <div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); position: sticky; top: 2rem;">
+                <h2 style="color: var(--primary-dark); margin: 0 0 1.5rem 0; font-size: 1.3rem;">Order Summary</h2>
+
+                <div style="border-bottom: 1px solid #eee; padding-bottom: 1rem; margin-bottom: 1rem;">
+                    {% for cart_item in cart_items %}
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.8rem; font-size: 0.9rem;">
+                        <span style="color: #666;">{{ cart_item.item.title|truncatewords:3 }} x{{ cart_item.quantity }}</span>
+                        <span style="color: var(--primary-dark); font-weight: 600;">${{ cart_item.get_subtotal|floatformat:2 }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                    <span style="color: #666;">Subtotal</span>
+                    <span style="color: var(--primary-dark); font-weight: 600;">${{ cart.get_total|floatformat:2 }}</span>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                    <span style="color: #666;">Shipping</span>
+                    <span style="color: var(--primary-dark); font-weight: 600;">Free</span>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; padding: 1rem 0; border-top: 2px solid var(--secondary-pink); border-bottom: 2px solid var(--secondary-pink); margin-bottom: 1rem;">
+                    <span style="color: var(--primary-dark); font-weight: 700;">Total</span>
+                    <span style="color: var(--secondary-pink); font-weight: 700; font-size: 1.2rem;">${{ cart.get_total|floatformat:2 }}</span>
+                </div>
+
+                <a href="{% url 'view_cart' %}" style="display: block; text-align: center; padding: 0.8rem; background: #f0f0f0; color: var(--primary-dark); text-decoration: none; border-radius: 4px; font-weight: 600;">Back to Cart</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

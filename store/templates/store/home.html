@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Home - Latagan{% endblock %}
+
+{% block content %}
+<div class="swipe-container">
+    <!-- CSRF Token (hidden) -->
+    {% csrf_token %}
+    
+    <!-- Swipe Header -->
+    <div class="swipe-header">
+        <h1 class="swipe-title">Discover</h1>
+        <p class="swipe-subtitle">Find your perfect thrift piece</p>
+    </div>
+
+    <!-- Swipe Section -->
+    {% if featured_items %}
+    <div class="swipe-wrapper">
+        <div id="swipe-card-stack">
+            {% for item in featured_items %}
+                <div class="swipe-card" data-item-id="{{ item.id }}">
+                    {% if item.image %}
+                        <img src="{{ item.image.url }}" alt="{{ item.title }}" class="swipe-card-image">
+                    {% else %}
+                        <div class="swipe-card-image" style="background-color: #ddd; display: flex; align-items: center; justify-content: center;">
+                            <span style="color: #999; font-size: 1.2rem;">No image</span>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="swipe-card-gradient"></div>
+                    
+                    <div class="swipe-card-content">
+                        <div class="swipe-card-info">
+                            <h3 class="swipe-card-title">{{ item.title }}</h3>
+                            <p class="swipe-card-seller">{{ item.seller.username }}</p>
+                        </div>
+                        
+                        <div class="swipe-card-details">
+                            <p class="swipe-card-price">${{ item.price }}</p>
+                            <div class="swipe-card-meta">
+                                <span class="swipe-badge">{{ item.category.name }}</span>
+                                <span class="swipe-badge condition">{{ item.get_condition_display }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="swipe-action-buttons">
+        <button class="swipe-btn nope" id="nope-btn" title="Skip">
+            <span class="btn-icon">✕</span>
+        </button>
+        <button class="swipe-btn add" id="add-btn" title="Add to cart">
+            <span class="btn-icon">♥</span>
+        </button>
+    </div>
+
+    <!-- Swipe Instructions -->
+    <div class="swipe-footer-instructions">
+        <p>Drag left to skip • Right to add</p>
+    </div>
+    {% else %}
+    <div class="swipe-empty-state">
+        <p style="text-align: center; color: #999; font-size: 1.1rem;">No items available yet. Check back soon!</p>
+    </div>
+    {% endif %}
+</div>
+
+<script src="{% static 'js/swipe.js' %}"></script>
+{% endblock %}

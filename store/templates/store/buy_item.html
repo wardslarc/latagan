@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}Confirm Purchase - Latagan{% endblock %}
+
+{% block content %}
+<div style="max-width: 500px; margin: 3rem auto;">
+    <div style="background: var(--light-gray); padding: 2rem; border-radius: 8px;">
+        <h2 style="color: var(--primary-dark); text-align: center; margin-bottom: 2rem;">Confirm Purchase</h2>
+        
+        <div style="background: white; padding: 1.5rem; border-radius: 4px; margin-bottom: 2rem;">
+            <h3 style="color: var(--primary-dark); margin-bottom: 1rem;">Order Summary</h3>
+            
+            <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+                {% if item.image %}
+                    <img src="{{ item.image.url }}" alt="{{ item.title }}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 4px;">
+                {% else %}
+                    <div style="width: 100px; height: 100px; background: #ddd; border-radius: 4px; display: flex; align-items: center; justify-content: center;">
+                        📦
+                    </div>
+                {% endif %}
+                <div>
+                    <h4 style="color: var(--primary-dark);">{{ item.title }}</h4>
+                    <p style="color: #888; margin-bottom: 0.5rem;">{{ item.category.name }} - {{ item.get_condition_display }}</p>
+                    <p style="color: var(--secondary-pink); font-weight: bold; font-size: 1.3rem;">${{ item.price }}</p>
+                </div>
+            </div>
+
+            <hr style="border: none; border-top: 1px solid var(--border-gray); margin: 1rem 0;">
+
+            <div style="margin-bottom: 1rem;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <span style="color: #888;">Item Price:</span>
+                    <span style="color: var(--primary-dark); font-weight: 500;">${{ item.price }}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="color: #888;">Shipping & Handling:</span>
+                    <span style="color: var(--primary-dark); font-weight: 500;">Free</span>
+                </div>
+            </div>
+
+            <div style="border-top: 2px solid var(--secondary-pink); padding-top: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                <span style="color: var(--primary-dark); font-weight: 600; font-size: 1.1rem;">Total:</span>
+                <span style="color: var(--secondary-pink); font-weight: bold; font-size: 1.5rem;">${{ item.price }}</span>
+            </div>
+        </div>
+
+        <div style="background: white; padding: 1rem; border-radius: 4px; margin-bottom: 2rem; border-left: 4px solid var(--secondary-pink);">
+            <p style="color: var(--primary-dark); margin-bottom: 0.5rem;"><strong>Seller:</strong> {{ item.seller.username }}</p>
+            <p style="color: var(--primary-dark);"><strong>Condition:</strong> {{ item.get_condition_display }}</p>
+        </div>
+
+        <form method="post" style="margin-bottom: 1rem;">
+            {% csrf_token %}
+            <button type="submit" class="form-submit" style="width: 100%; padding: 1rem;">Complete Purchase</button>
+        </form>
+
+        <p style="text-align: center;">
+            <a href="{% url 'item_detail' item.id %}" style="color: var(--secondary-pink); text-decoration: none;">Cancel</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

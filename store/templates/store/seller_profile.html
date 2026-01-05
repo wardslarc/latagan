@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ seller.first_name }} {{ seller.last_name }} - Latagan{% endblock %}
+
+{% block content %}
+<div style="background: var(--light-gray); padding: 2rem; border-radius: 8px; margin-bottom: 2rem;">
+    <div style="display: flex; gap: 2rem; align-items: flex-start;">
+        <div style="width: 150px; height: 150px; background: var(--secondary-pink); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 4rem; flex-shrink: 0;">
+            👤
+        </div>
+        <div style="flex: 1;">
+            <h1 style="color: var(--primary-dark); font-size: 2rem; margin-bottom: 0.5rem;">{{ seller.first_name }} {{ seller.last_name }}</h1>
+            <p style="color: #888; font-size: 1.1rem; margin-bottom: 1rem;">@{{ seller.username }}</p>
+            
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
+                <div>
+                    <p style="color: #888; font-size: 0.9rem; text-transform: uppercase; margin-bottom: 0.5rem;">Items Listed</p>
+                    <p style="font-size: 1.5rem; color: var(--secondary-pink); font-weight: bold;">{{ items|length }}</p>
+                </div>
+                <div>
+                    <p style="color: #888; font-size: 0.9rem; text-transform: uppercase; margin-bottom: 0.5rem;">Rating</p>
+                    <p style="font-size: 1.5rem; color: var(--secondary-pink); font-weight: bold;">⭐ {{ seller_profile.rating }}</p>
+                </div>
+                <div>
+                    <p style="color: #888; font-size: 0.9rem; text-transform: uppercase; margin-bottom: 0.5rem;">Joined</p>
+                    <p style="font-size: 1rem; color: var(--primary-dark);">{{ seller_profile.created_at|date:"M Y" }}</p>
+                </div>
+            </div>
+
+            {% if seller_profile.bio %}
+                <p style="color: var(--primary-dark); line-height: 1.8;">{{ seller_profile.bio }}</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<h2 class="section-title">Items for Sale</h2>
+
+{% if items %}
+    <div class="items-grid">
+        {% for item in items %}
+            <div class="item-card">
+                {% if item.image %}
+                    <img src="{{ item.image.url }}" alt="{{ item.title }}" class="item-image">
+                {% else %}
+                    <div class="item-image" style="background-color: #ddd; display: flex; align-items: center; justify-content: center;">
+                        <span style="color: #999;">No image</span>
+                    </div>
+                {% endif %}
+                <div class="item-info">
+                    <div>
+                        <span class="item-category">{{ item.category.name }}</span>
+                        <span class="item-condition">{{ item.get_condition_display }}</span>
+                    </div>
+                    <h3 class="item-title">{{ item.title }}</h3>
+                    <div class="item-price">${{ item.price }}</div>
+                    <div class="item-action">
+                        <a href="{% url 'item_detail' item.id %}" class="btn btn-primary">View</a>
+                        {% if user.is_authenticated and user != seller %}
+                            <a href="{% url 'buy_item' item.id %}" class="btn btn-secondary">Buy</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p style="text-align: center; color: #999;">This seller has no items listed yet.</p>
+{% endif %}
+{% endblock %}

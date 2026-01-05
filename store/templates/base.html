@@ -1,0 +1,70 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Latagan - Online Thrift Store{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <nav>
+        <div class="navbar-container">
+            <a href="{% url 'home' %}" class="navbar-brand">
+                🛍️ Latagan
+            </a>
+            <ul class="navbar-menu">
+                {% if user.is_authenticated and user.userprofile.current_mode == 'seller' %}
+                    <!-- Seller mode: Hide Home and Cart, show seller-specific buttons -->
+                    <li><a href="{% url 'item_list' %}">Browse</a></li>
+                    <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                    <li><a href="{% url 'sell_item' %}">Sell Item</a></li>
+                    <li><a href="{% url 'messages_inbox' %}">💬 Messages</a></li>
+                    <li><a href="{% url 'profile' %}">Profile</a></li>
+                {% elif user.is_authenticated %}
+                    <!-- Buyer mode: Show all buyer buttons -->
+                    <li><a href="{% url 'home' %}">Home</a></li>
+                    <li><a href="{% url 'item_list' %}">Browse</a></li>
+                    <li><a href="{% url 'messages_inbox' %}">💬 Messages</a></li>
+                    <li><a href="{% url 'view_cart' %}">🛒 Cart</a></li>
+                    <li><a href="{% url 'profile' %}">Profile</a></li>
+                {% else %}
+                    <!-- Guest mode -->
+                    <li><a href="{% url 'home' %}">Home</a></li>
+                    <li><a href="{% url 'item_list' %}">Browse</a></li>
+                    <li>
+                        <a href="{% url 'login' %}" class="btn-login">Login</a>
+                        <a href="{% url 'register' %}" class="btn-register">Sign Up</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Latagan - Your Favorite Online Thrift Store</p>
+        <div class="footer-links">
+            <a href="{% url 'home' %}">Home</a>
+            <a href="{% url 'item_list' %}">Browse</a>
+            <a href="#">About Us</a>
+            <a href="#">Contact</a>
+            <a href="#">Privacy</a>
+        </div>
+        <p>Made with ❤️ for thrift lovers</p>
+    </footer>
+</body>
+</html>

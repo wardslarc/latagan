@@ -1,0 +1,490 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Profile - Latagan{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <!-- Profile Header -->
+    <div class="profile-header">
+        <div class="profile-avatar">
+            <div class="avatar-placeholder">{{ user.first_name|first|upper }}{{ user.last_name|first|upper }}</div>
+        </div>
+        <div class="profile-info">
+            <h1 class="profile-name">{{ user.first_name }} {{ user.last_name }}</h1>
+            <p class="profile-username">@{{ user.username }}</p>
+            <p class="profile-email">{{ user.email }}</p>
+            {% if user_profile.bio %}
+                <p class="profile-bio">{{ user_profile.bio }}</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Profile Stats -->
+    <div class="profile-stats">
+        <div class="stat-card">
+            <div class="stat-number">{{ items_count }}</div>
+            <div class="stat-label">Items Listed</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ purchases_count }}</div>
+            <div class="stat-label">Purchases</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ reviews_count }}</div>
+            <div class="stat-label">Reviews</div>
+        </div>
+        {% if avg_rating %}
+            <div class="stat-card">
+                <div class="stat-number">{{ avg_rating|floatformat:1 }}⭐</div>
+                <div class="stat-label">Rating</div>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Profile Sections -->
+    <div class="profile-sections">
+        <!-- Mode Toggle Section -->
+        <section class="profile-section mode-section">
+            <h2 class="section-title">User Mode</h2>
+            <div class="section-content mode-content">
+                <div class="mode-display">
+                    <p class="mode-label">Current Mode:</p>
+                    <div class="mode-badge {% if user_profile.current_mode == 'seller' %}seller{% else %}buyer{% endif %}">
+                        {% if user_profile.current_mode == 'seller' %}
+                            🏪 Seller Mode
+                        {% else %}
+                            🛍️ Buyer Mode
+                        {% endif %}
+                    </div>
+                </div>
+                <form method="post" action="{% url 'toggle_user_mode' %}" class="mode-toggle-form">
+                    {% csrf_token %}
+                    <button type="submit" class="profile-link mode-toggle-btn">
+                        <span class="link-icon">🔄</span>
+                        <span class="link-text">Switch to {% if user_profile.current_mode == 'seller' %}Buyer{% else %}Seller{% endif %} Mode</span>
+                        <span class="link-arrow">→</span>
+                    </button>
+                </form>
+                <p class="mode-description">
+                    {% if user_profile.current_mode == 'seller' %}
+                        In Seller Mode, you can list items for sale and manage your inventory. You won't see "Sell Item" and "Dashboard" options in other modes.
+                    {% else %}
+                        In Buyer Mode, you can browse and purchase items. Switch to Seller Mode to start selling items.
+                    {% endif %}
+                </p>
+            </div>
+        </section>
+
+        <!-- Settings Section -->
+        <section class="profile-section">
+            <h2 class="section-title">Account Settings</h2>
+            <div class="section-content">
+                <a href="#" class="profile-link">
+                    <span class="link-icon">📝</span>
+                    <span class="link-text">Edit Profile</span>
+                    <span class="link-arrow">→</span>
+                </a>
+                <a href="#" class="profile-link">
+                    <span class="link-icon">🔐</span>
+                    <span class="link-text">Change Password</span>
+                    <span class="link-arrow">→</span>
+                </a>
+                <a href="#" class="profile-link">
+                    <span class="link-icon">⚙️</span>
+                    <span class="link-text">Preferences</span>
+                    <span class="link-arrow">→</span>
+                </a>
+            </div>
+        </section>
+
+        <!-- Quick Links Section -->
+        <section class="profile-section">
+            <h2 class="section-title">Quick Links</h2>
+            <div class="section-content">
+                {% if user_profile.current_mode == 'seller' %}
+                    <a href="{% url 'dashboard' %}" class="profile-link">
+                        <span class="link-icon">📊</span>
+                        <span class="link-text">Dashboard</span>
+                        <span class="link-arrow">→</span>
+                    </a>
+                    <a href="{% url 'sell_item' %}" class="profile-link">
+                        <span class="link-icon">📦</span>
+                        <span class="link-text">Sell Item</span>
+                        <span class="link-arrow">→</span>
+                    </a>
+                {% else %}
+                    <p style="color: #aaa; margin: 0.5rem 0; font-size: 0.9rem;">
+                        💡 Switch to Seller Mode to access Dashboard and Sell Item options.
+                    </p>
+                {% endif %}
+                <a href="{% url 'item_list' %}" class="profile-link">
+                    <span class="link-icon">🛍️</span>
+                    <span class="link-text">Browse Items</span>
+                    <span class="link-arrow">→</span>
+                </a>
+            </div>
+        </section>
+
+        <!-- Danger Zone Section -->
+        <section class="profile-section danger-zone">
+            <h2 class="section-title">Danger Zone</h2>
+            <div class="section-content">
+                <form method="post" action="{% url 'logout' %}" class="logout-form">
+                    {% csrf_token %}
+                    <button type="submit" class="profile-link danger-button">
+                        <span class="link-icon">🚪</span>
+                        <span class="link-text">Logout</span>
+                        <span class="link-arrow">→</span>
+                    </button>
+                </form>
+            </div>
+        </section>
+    </div>
+</div>
+
+<style>
+.profile-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+    min-height: calc(100vh - 200px);
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    padding: 2rem;
+    background: linear-gradient(135deg, #1a2d4d 0%, #0f1419 100%);
+    border-radius: 16px;
+    margin-bottom: 2rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.profile-avatar {
+    flex-shrink: 0;
+}
+
+.avatar-placeholder {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--secondary-pink) 0%, var(--accent-purple) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 2rem;
+    font-weight: 700;
+    box-shadow: 0 8px 20px rgba(255, 59, 129, 0.3);
+}
+
+.profile-info {
+    flex: 1;
+}
+
+.profile-name {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--light-text);
+    margin: 0 0 0.5rem 0;
+}
+
+.profile-username {
+    font-size: 1.1rem;
+    color: var(--secondary-pink);
+    margin: 0.2rem 0;
+    font-weight: 600;
+}
+
+.profile-email {
+    font-size: 0.95rem;
+    color: #aaa;
+    margin: 0.3rem 0;
+}
+
+.profile-bio {
+    font-size: 0.9rem;
+    color: #ccc;
+    margin: 0.5rem 0 0 0;
+    line-height: 1.4;
+}
+
+.profile-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: linear-gradient(135deg, #1a2d4d 0%, #0f1419 100%);
+    padding: 1.5rem;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 59, 129, 0.1);
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--secondary-pink);
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    color: #aaa;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.profile-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.profile-section {
+    background: linear-gradient(135deg, #1a2d4d 0%, #0f1419 100%);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 59, 129, 0.1);
+}
+
+.profile-section.danger-zone {
+    border-color: rgba(255, 107, 107, 0.3);
+}
+
+.section-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--light-text);
+    padding: 1.5rem 2rem 1rem;
+    margin: 0;
+    background: rgba(255, 59, 129, 0.05);
+}
+
+.section-content {
+    padding: 1rem 0;
+}
+
+.profile-link {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.2rem 2rem;
+    color: #ccc;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.profile-link:last-child {
+    border-bottom: none;
+}
+
+.profile-link:hover {
+    background: rgba(255, 59, 129, 0.1);
+    color: var(--secondary-pink);
+    padding-left: 2.5rem;
+}
+
+.profile-link.danger-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+}
+
+.profile-link.danger-button:hover {
+    background: rgba(255, 107, 107, 0.15);
+    color: #ff6b6b;
+}
+
+.link-icon {
+    font-size: 1.3rem;
+    min-width: 1.5rem;
+}
+
+.link-text {
+    flex: 1;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.link-arrow {
+    color: #666;
+    transition: all 0.2s ease;
+    margin-left: auto;
+}
+
+.profile-link:hover .link-arrow {
+    color: var(--secondary-pink);
+    margin-right: -0.5rem;
+}
+
+.logout-form {
+    width: 100%;
+}
+
+.mode-section {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(255, 59, 129, 0.1) 100%);
+    border: 2px solid rgba(139, 92, 246, 0.3);
+}
+
+.mode-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.mode-display {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+}
+
+.mode-label {
+    font-weight: 600;
+    color: #aaa;
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+.mode-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 1rem;
+    white-space: nowrap;
+}
+
+.mode-badge.buyer {
+    background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+}
+
+.mode-badge.seller {
+    background: linear-gradient(135deg, var(--secondary-pink) 0%, #e6315a 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(255, 59, 129, 0.3);
+}
+
+.mode-toggle-form {
+    width: 100%;
+}
+
+.mode-toggle-btn {
+    background: linear-gradient(135deg, var(--accent-purple) 0%, var(--secondary-pink) 100%);
+    color: white;
+}
+
+.mode-toggle-btn:hover {
+    background: linear-gradient(135deg, #7c3aed 0%, #e6315a 100%);
+    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.3);
+}
+
+.mode-description {
+    font-size: 0.85rem;
+    color: #999;
+    margin: 0;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    line-height: 1.6;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .mode-display {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+
+@media (max-width: 768px) {
+    .profile-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+
+    .profile-name {
+        font-size: 1.6rem;
+    }
+
+    .profile-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .profile-link {
+        padding: 1rem 1.5rem;
+    }
+
+    .profile-link:hover {
+        padding-left: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .profile-container {
+        padding: 1rem;
+    }
+
+    .profile-header {
+        padding: 1.5rem;
+    }
+
+    .profile-avatar {
+        flex-basis: 100%;
+    }
+
+    .avatar-placeholder {
+        width: 100px;
+        height: 100px;
+        font-size: 1.8rem;
+    }
+
+    .profile-name {
+        font-size: 1.3rem;
+    }
+
+    .profile-stats {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.8rem;
+    }
+
+    .stat-card {
+        padding: 1rem;
+    }
+
+    .stat-number {
+        font-size: 1.5rem;
+    }
+
+    .section-title {
+        font-size: 1.1rem;
+        padding: 1rem 1.5rem 0.8rem;
+    }
+
+    .profile-link {
+        padding: 0.9rem 1.5rem;
+        gap: 0.8rem;
+    }
+}
+</style>
+{% endblock %}

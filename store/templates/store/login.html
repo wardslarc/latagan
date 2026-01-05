@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}Login - Latagan{% endblock %}
+
+{% block content %}
+<div style="max-width: 500px; margin: 3rem auto;">
+    <div style="background: var(--light-gray); padding: 2rem; border-radius: 8px;">
+        <h2 style="color: var(--primary-dark); text-align: center; margin-bottom: 2rem;">Welcome Back</h2>
+        
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required placeholder="Enter your username">
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required placeholder="Enter your password">
+            </div>
+
+            <button type="submit" class="form-submit">Login</button>
+        </form>
+
+        <p style="text-align: center; color: #888; margin-top: 1.5rem;">
+            Don't have an account? 
+            <a href="{% url 'register' %}" style="color: var(--secondary-pink); text-decoration: none; font-weight: 500;">Sign up here</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

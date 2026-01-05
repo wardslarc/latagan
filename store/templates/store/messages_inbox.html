@@ -1,0 +1,245 @@
+{% extends 'base.html' %}
+
+{% block title %}Messages - Latagan{% endblock %}
+
+{% block content %}
+<style>
+    .messages-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+
+    .messages-header {
+        margin-bottom: 2rem;
+    }
+
+    .messages-header h1 {
+        color: var(--primary-dark);
+        margin: 0 0 0.5rem 0;
+        font-size: 2rem;
+    }
+
+    .messages-header p {
+        color: #666;
+        margin: 0;
+    }
+
+    .unread-badge {
+        display: inline-block;
+        background: var(--secondary-pink);
+        color: white;
+        padding: 0.2rem 0.6rem;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-left: 0.5rem;
+    }
+
+    .messages-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .message-thread {
+        background: white;
+        border-radius: 8px;
+        padding: 1.5rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        transition: all 0.2s ease;
+        text-decoration: none;
+        color: inherit;
+        display: flex;
+        gap: 1.5rem;
+        align-items: stretch;
+        cursor: pointer;
+    }
+
+    .message-thread:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        transform: translateY(-2px);
+    }
+
+    .message-thread.unread {
+        background: rgba(255, 59, 129, 0.05);
+        border-left: 4px solid var(--secondary-pink);
+    }
+
+    .message-thread-image {
+        width: 100px;
+        height: 100px;
+        border-radius: 8px;
+        object-fit: cover;
+        background: #f0f0f0;
+        flex-shrink: 0;
+    }
+
+    .message-thread-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .message-thread-title {
+        color: var(--primary-dark);
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin: 0 0 0.5rem 0;
+    }
+
+    .message-thread-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .message-thread-user {
+        color: #666;
+        font-size: 0.95rem;
+    }
+
+    .message-thread-price {
+        color: var(--secondary-pink);
+        font-weight: 600;
+    }
+
+    .message-thread-preview {
+        color: #888;
+        font-size: 0.9rem;
+        margin: 0.5rem 0 0 0;
+        line-height: 1.4;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+
+    .message-thread-time {
+        color: #999;
+        font-size: 0.85rem;
+        text-align: right;
+        flex-shrink: 0;
+        white-space: nowrap;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: #999;
+    }
+
+    .empty-state-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+
+    .empty-state h2 {
+        color: var(--primary-dark);
+        margin: 1rem 0 0.5rem 0;
+    }
+
+    .empty-state p {
+        margin: 0;
+    }
+
+    @media (max-width: 768px) {
+        .message-thread {
+            flex-direction: column;
+            padding: 1rem;
+        }
+
+        .message-thread-image {
+            width: 100%;
+            height: 200px;
+        }
+
+        .message-thread-time {
+            text-align: left;
+            grid-column: 1 / -1;
+        }
+
+        .message-thread-info {
+            flex-wrap: wrap;
+        }
+    }
+</style>
+
+<div class="messages-container">
+    <!-- Header -->
+    <div class="messages-header">
+        <h1>
+            Messages
+            {% if unread_count > 0 %}
+                <span class="unread-badge">{{ unread_count }} unread</span>
+            {% endif %}
+        </h1>
+        <p>Chat with buyers and sellers about items</p>
+    </div>
+
+    <!-- Messages List -->
+    {% if items_with_messages %}
+        <div class="messages-list">
+            {% for conversation in items_with_messages %}
+                <a href="{% url 'item_chat' conversation.item.id %}" class="message-thread {% if conversation.unread_count > 0 %}unread{% endif %}">
+                    {% if conversation.item.image %}
+                        <img src="{{ conversation.item.image.url }}" alt="{{ conversation.item.title }}" class="message-thread-image">
+                    {% else %}
+                        <div class="message-thread-image" style="display: flex; align-items: center; justify-content: center; background: #f0f0f0;">
+                            📦
+                        </div>
+                    {% endif %}
+
+                    <div class="message-thread-content">
+                        <h3 class="message-thread-title">{{ conversation.item.title }}</h3>
+                        
+                        <div class="message-thread-info">
+                            <span class="message-thread-user">
+                                {% if conversation.other_user == request.user %}
+                                    Seller: {{ conversation.item.seller.first_name }} {{ conversation.item.seller.last_name }}
+                                {% else %}
+                                    Buyer: {{ conversation.other_user.first_name }} {{ conversation.other_user.last_name }}
+                                {% endif %}
+                            </span>
+                            <span class="message-thread-price">${{ conversation.item.price }}</span>
+                        </div>
+
+                        {% if conversation.last_message %}
+                            <p class="message-thread-preview">
+                                <strong>{{ conversation.last_message.sender.first_name }}:</strong> {{ conversation.last_message.content }}
+                            </p>
+                        {% endif %}
+                    </div>
+
+                    <div class="message-thread-time">
+                        {% if conversation.last_message %}
+                            {{ conversation.last_message.created_at|date:"M d" }}<br>
+                            {{ conversation.last_message.created_at|date:"g:i A" }}
+                        {% endif %}
+                        {% if conversation.unread_count > 0 %}
+                            <span class="unread-badge" style="display: block; margin-top: 0.5rem;">{{ conversation.unread_count }}</span>
+                        {% endif %}
+                    </div>
+                </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">💬</div>
+            <h2>No messages yet</h2>
+            <p>Start chatting with buyers or sellers about items</p>
+            <a href="{% url 'home' %}" style="display: inline-block; margin-top: 1.5rem; padding: 0.8rem 1.5rem; background: var(--secondary-pink); color: white; text-decoration: none; border-radius: 4px; font-weight: 600;">
+                Browse items to chat
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+    // Scroll to top on load
+    window.scrollTo(0, 0);
+</script>
+{% endblock %}

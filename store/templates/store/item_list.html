@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block title %}Browse Items - Latagan{% endblock %}
+
+{% block content %}
+<div style="display: grid; grid-template-columns: 250px 1fr; gap: 2rem; margin-bottom: 2rem;">
+    <!-- Sidebar Filters -->
+    <aside style="background: var(--light-gray); padding: 1.5rem; border-radius: 8px; height: fit-content;">
+        <h3 style="color: var(--primary-dark); margin-bottom: 1rem;">Filters</h3>
+        
+        <form method="get" style="display: flex; flex-direction: column; gap: 1.5rem;">
+            <!-- Search -->
+            <div>
+                <label style="color: var(--primary-dark); font-weight: 500; display: block; margin-bottom: 0.5rem;">Search</label>
+                <input type="text" name="q" value="{{ query }}" placeholder="Search items..." style="width: 100%; padding: 0.6rem; border: 2px solid var(--border-gray); border-radius: 4px;">
+            </div>
+
+            <!-- Category -->
+            <div>
+                <label style="color: var(--primary-dark); font-weight: 500; display: block; margin-bottom: 0.5rem;">Category</label>
+                <select name="category" style="width: 100%; padding: 0.6rem; border: 2px solid var(--border-gray); border-radius: 4px;">
+                    <option value="">All Categories</option>
+                    {% for category in categories %}
+                        <option value="{{ category.id }}">{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Condition -->
+            <div>
+                <label style="color: var(--primary-dark); font-weight: 500; display: block; margin-bottom: 0.5rem;">Condition</label>
+                <select name="condition" style="width: 100%; padding: 0.6rem; border: 2px solid var(--border-gray); border-radius: 4px;">
+                    <option value="">All Conditions</option>
+                    <option value="new">New</option>
+                    <option value="like_new">Like New</option>
+                    <option value="good">Good</option>
+                    <option value="fair">Fair</option>
+                    <option value="poor">Poor</option>
+                </select>
+            </div>
+
+            <!-- Price Range -->
+            <div>
+                <label style="color: var(--primary-dark); font-weight: 500; display: block; margin-bottom: 0.5rem;">Price Range</label>
+                <input type="number" name="min_price" placeholder="Min" style="width: 100%; padding: 0.6rem; border: 2px solid var(--border-gray); border-radius: 4px; margin-bottom: 0.5rem;">
+                <input type="number" name="max_price" placeholder="Max" style="width: 100%; padding: 0.6rem; border: 2px solid var(--border-gray); border-radius: 4px;">
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Apply Filters</button>
+        </form>
+    </aside>
+
+    <!-- Items List -->
+    <div>
+        <h2 class="section-title">Browse Our Items</h2>
+        
+        {% if items %}
+            <div class="items-grid">
+                {% for item in items %}
+                    <div class="item-card">
+                        {% if item.image %}
+                            <img src="{{ item.image.url }}" alt="{{ item.title }}" class="item-image">
+                        {% else %}
+                            <div class="item-image" style="background-color: #ddd; display: flex; align-items: center; justify-content: center;">
+                                <span style="color: #999;">No image</span>
+                            </div>
+                        {% endif %}
+                        <div class="item-info">
+                            <div>
+                                <span class="item-category">{{ item.category.name }}</span>
+                                <span class="item-condition">{{ item.get_condition_display }}</span>
+                            </div>
+                            <h3 class="item-title">{{ item.title }}</h3>
+                            <p class="item-seller">By: <a href="{% url 'seller_profile' item.seller.id %}" style="color: var(--secondary-pink); text-decoration: none;">{{ item.seller.username }}</a></p>
+                            <div class="item-price">${{ item.price }}</div>
+                            <div class="item-action">
+                                <a href="{% url 'item_detail' item.id %}" class="btn btn-primary">View</a>
+                                {% if user.is_authenticated and user != item.seller %}
+                                    <a href="{% url 'buy_item' item.id %}" class="btn btn-secondary">Buy</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p style="text-align: center; color: #999; font-size: 1.1rem;">No items found matching your criteria.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

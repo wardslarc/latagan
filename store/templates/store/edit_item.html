@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Item - Latagan{% endblock %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 2rem auto;">
+    <div style="background: var(--light-gray); padding: 2rem; border-radius: 8px;">
+        <h2 style="color: var(--primary-dark); text-align: center; margin-bottom: 2rem;">Edit Item</h2>
+        
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="title">Item Title *</label>
+                <input type="text" id="title" name="title" required value="{{ item.title }}">
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description *</label>
+                <textarea id="description" name="description" required>{{ item.description }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="category">Category *</label>
+                <select id="category" name="category" required>
+                    {% for category in categories %}
+                        <option value="{{ category.id }}" {% if category.id == item.category.id %}selected{% endif %}>{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                    <label for="price">Price ($) *</label>
+                    <input type="number" id="price" name="price" step="0.01" min="0.01" required value="{{ item.price }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="condition">Condition *</label>
+                    <select id="condition" name="condition" required>
+                        <option value="new" {% if item.condition == 'new' %}selected{% endif %}>New</option>
+                        <option value="like_new" {% if item.condition == 'like_new' %}selected{% endif %}>Like New</option>
+                        <option value="good" {% if item.condition == 'good' %}selected{% endif %}>Good</option>
+                        <option value="fair" {% if item.condition == 'fair' %}selected{% endif %}>Fair</option>
+                        <option value="poor" {% if item.condition == 'poor' %}selected{% endif %}>Poor</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="image">Image</label>
+                {% if item.image %}
+                    <p style="color: #888; margin-bottom: 0.5rem;">Current: {{ item.image.name|truncatechars:50 }}</p>
+                {% endif %}
+                <input type="file" id="image" name="image" accept="image/*">
+                <p style="color: #888; font-size: 0.85rem; margin-top: 0.5rem;">Leave empty to keep current image</p>
+            </div>
+
+            <button type="submit" class="form-submit">Update Item</button>
+        </form>
+
+        <p style="text-align: center; color: #888; margin-top: 1.5rem;">
+            <a href="{% url 'item_detail' item.id %}" style="color: var(--secondary-pink); text-decoration: none;">Cancel</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

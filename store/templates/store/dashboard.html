@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Latagan{% endblock %}
+
+{% block content %}
+<h1 class="section-title">Your Dashboard</h1>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <h4>Items Listed</h4>
+        <div class="value">{{ my_items|length }}</div>
+    </div>
+    <div class="stat-card">
+        <h4>Total Purchases</h4>
+        <div class="value">{{ my_orders|length }}</div>
+    </div>
+    <div class="stat-card">
+        <h4>Rating</h4>
+        <div class="value">{{ user_profile.rating }}</div>
+    </div>
+</div>
+
+<!-- My Items Section -->
+<div class="dashboard-section">
+    <h3>Your Listings</h3>
+    
+    <a href="{% url 'sell_item' %}" class="btn btn-primary" style="margin-bottom: 1.5rem;">+ List New Item</a>
+
+    {% if my_items %}
+        <div class="items-grid">
+            {% for item in my_items %}
+                <div class="item-card">
+                    {% if item.image %}
+                        <img src="{{ item.image.url }}" alt="{{ item.title }}" class="item-image">
+                    {% else %}
+                        <div class="item-image" style="background-color: #ddd; display: flex; align-items: center; justify-content: center;">
+                            <span style="color: #999;">No image</span>
+                        </div>
+                    {% endif %}
+                    <div class="item-info">
+                        <div>
+                            <span class="item-category">{{ item.category.name }}</span>
+                            <span style="display: inline-block; background: {% if item.status == 'available' %}#d4edda{% else %}#f8d7da{% endif %}; color: {% if item.status == 'available' %}#155724{% else %}#721c24{% endif %}; font-size: 0.75rem; padding: 0.3rem 0.8rem; border-radius: 20px; margin-left: 0.5rem;">{{ item.get_status_display }}</span>
+                        </div>
+                        <h3 class="item-title">{{ item.title }}</h3>
+                        <div class="item-price">${{ item.price }}</div>
+                        <div class="item-action">
+                            <a href="{% url 'item_detail' item.id %}" class="btn btn-primary">View</a>
+                            <a href="{% url 'edit_item' item.id %}" class="btn btn-secondary">Edit</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p style="color: #888;">You haven't listed any items yet. Start selling today!</p>
+    {% endif %}
+</div>
+
+<!-- My Orders Section -->
+<div class="dashboard-section">
+    <h3>Your Purchases</h3>
+
+    {% if my_orders %}
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background: var(--primary-dark); color: var(--light-text);">
+                    <th style="padding: 1rem; text-align: left;">Item</th>
+                    <th style="padding: 1rem; text-align: left;">Price</th>
+                    <th style="padding: 1rem; text-align: left;">Status</th>
+                    <th style="padding: 1rem; text-align: left;">Date</th>
+                    <th style="padding: 1rem; text-align: left;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in my_orders %}
+                    <tr style="border-bottom: 1px solid var(--border-gray);">
+                        <td style="padding: 1rem;">{{ order.item.title }}</td>
+                        <td style="padding: 1rem; color: var(--secondary-pink); font-weight: bold;">${{ order.total_price }}</td>
+                        <td style="padding: 1rem;">
+                            <span style="background: {% if order.status == 'delivered' %}#d4edda{% elif order.status == 'cancelled' %}#f8d7da{% else %}#e2f0ff{% endif %}; color: {% if order.status == 'delivered' %}#155724{% elif order.status == 'cancelled' %}#721c24{% else %}#004085{% endif %}; padding: 0.3rem 0.8rem; border-radius: 4px; font-size: 0.85rem;">{{ order.get_status_display }}</span>
+                        </td>
+                        <td style="padding: 1rem;">{{ order.created_at|date:"M d, Y" }}</td>
+                        <td style="padding: 1rem;">
+                            <a href="{% url 'item_detail' order.item.id %}" class="btn btn-primary" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">View</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p style="color: #888;">You haven't made any purchases yet. Start shopping!</p>
+    {% endif %}
+</div>
+
+<!-- Profile Section -->
+<div class="dashboard-section">
+    <h3>Profile Settings</h3>
+
+    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem;">
+        <div>
+            <label style="color: #888; font-size: 0.85rem; text-transform: uppercase;">Username</label>
+            <p style="color: var(--primary-dark); font-weight: 500;">{{ user.username }}</p>
+        </div>
+        <div>
+            <label style="color: #888; font-size: 0.85rem; text-transform: uppercase;">Email</label>
+            <p style="color: var(--primary-dark); font-weight: 500;">{{ user.email }}</p>
+        </div>
+        <div>
+            <label style="color: #888; font-size: 0.85rem; text-transform: uppercase;">First Name</label>
+            <p style="color: var(--primary-dark); font-weight: 500;">{{ user.first_name|default:"Not set" }}</p>
+        </div>
+        <div>
+            <label style="color: #888; font-size: 0.85rem; text-transform: uppercase;">Last Name</label>
+            <p style="color: var(--primary-dark); font-weight: 500;">{{ user.last_name|default:"Not set" }}</p>
+        </div>
+    </div>
+
+    <p style="color: #888; margin-top: 1.5rem;">To edit your profile, please contact support.</p>
+</div>
+{% endblock %}
