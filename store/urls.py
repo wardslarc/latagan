@@ -14,6 +14,9 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
     path('profile/', views.user_profile, name='profile'),
     path('profile/toggle-mode/', views.toggle_user_mode, name='toggle_user_mode'),
+    path('profile/edit/', views.edit_profile, name='edit_profile'),
+    path('profile/change-password/', views.change_password, name='change_password'),
+    path('profile/preferences/', views.preferences, name='preferences'),
     
     # Dashboard & Selling
     path('dashboard/', views.dashboard, name='dashboard'),
