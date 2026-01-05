@@ -98,6 +98,23 @@
             </div>
         </section>
 
+        <!-- Credits Section -->
+        <section class="profile-section credits-section">
+            <h2 class="section-title">Credits Balance</h2>
+            <div class="section-content credits-content">
+                <div class="credits-display">
+                    <p class="credits-label">Available Credits</p>
+                    <div class="credits-amount">{{ user_profile.credits }}</div>
+                    <p class="credits-info">10 credits required to list an item</p>
+                </div>
+                <a href="{% url 'add_credits' %}" class="profile-link">
+                    <span class="link-icon">💳</span>
+                    <span class="link-text">Buy More Credits</span>
+                    <span class="link-arrow">→</span>
+                </a>
+            </div>
+        </section>
+
         <!-- Quick Links Section -->
         <section class="profile-section">
             <h2 class="section-title">Quick Links</h2>
@@ -390,6 +407,47 @@
 .mode-toggle-btn {
     background: linear-gradient(135deg, var(--accent-purple) 0%, var(--secondary-pink) 100%);
     color: white;
+}
+
+.credits-section {
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.15) 0%, rgba(76, 175, 80, 0.05) 100%);
+    border: 2px solid rgba(76, 175, 80, 0.3);
+}
+
+.credits-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.credits-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.5rem;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    text-align: center;
+}
+
+.credits-label {
+    font-weight: 600;
+    color: #aaa;
+    margin: 0 0 0.5rem 0;
+    font-size: 0.95rem;
+}
+
+.credits-amount {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #4CAF50;
+    margin-bottom: 0.5rem;
+}
+
+.credits-info {
+    margin: 0;
+    color: #999;
+    font-size: 0.85rem;
 }
 
 .mode-toggle-btn:hover {

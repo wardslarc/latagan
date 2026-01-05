@@ -34,4 +34,7 @@ urlpatterns = [
     # Messaging
     path('item/<int:item_id>/chat/', views.item_chat, name='item_chat'),
     path('messages/', views.messages_inbox, name='messages_inbox'),
+    
+    # Credits
+    path('credits/add/', views.add_credits, name='add_credits'),
 ]

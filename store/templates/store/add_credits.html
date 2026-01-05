@@ -1,0 +1,335 @@
+{% extends 'base.html' %}
+
+{% block title %}Buy Credits - Latagan{% endblock %}
+
+{% block content %}
+<style>
+    .credits-container {
+        max-width: 900px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .credits-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .credits-header h1 {
+        color: var(--primary-dark);
+        margin: 0 0 0.5rem 0;
+        font-size: 2.2rem;
+    }
+
+    .credits-header p {
+        color: #666;
+        font-size: 1.1rem;
+        margin: 0;
+    }
+
+    .credit-balance {
+        background: linear-gradient(135deg, var(--secondary-pink) 0%, var(--accent-purple) 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 8px;
+        text-align: center;
+        margin-bottom: 3rem;
+        box-shadow: 0 4px 12px rgba(255, 59, 129, 0.2);
+    }
+
+    .credit-balance-amount {
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .credit-balance-label {
+        font-size: 1rem;
+        opacity: 0.9;
+    }
+
+    .packages-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .package-card {
+        background: white;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 2rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .package-card:hover {
+        border-color: var(--secondary-pink);
+        box-shadow: 0 4px 12px rgba(255, 59, 129, 0.2);
+        transform: translateY(-4px);
+    }
+
+    .package-card.featured {
+        border-color: var(--secondary-pink);
+        background: linear-gradient(135deg, rgba(255, 59, 129, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
+        position: relative;
+    }
+
+    .package-card.featured::before {
+        content: 'BEST VALUE';
+        position: absolute;
+        top: -12px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--secondary-pink);
+        color: white;
+        padding: 0.25rem 1rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+    }
+
+    .package-credits {
+        font-size: 2.5rem;
+        color: var(--secondary-pink);
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .package-label {
+        color: #666;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+
+    .package-price {
+        font-size: 1.8rem;
+        color: var(--primary-dark);
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+
+    .package-savings {
+        background: #e8f5e9;
+        color: #2e7d32;
+        padding: 0.5rem;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        display: none;
+    }
+
+    .package-card.featured .package-savings {
+        display: block;
+    }
+
+    .package-btn {
+        background: white;
+        border: 2px solid var(--secondary-pink);
+        color: var(--secondary-pink);
+        padding: 0.75rem 1.5rem;
+        border-radius: 4px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 1rem;
+        width: 100%;
+    }
+
+    .package-card:hover .package-btn {
+        background: var(--secondary-pink);
+        color: white;
+    }
+
+    .package-card.featured .package-btn {
+        background: var(--secondary-pink);
+        color: white;
+        border-color: var(--secondary-pink);
+    }
+
+    .custom-purchase {
+        background: var(--light-gray);
+        padding: 2rem;
+        border-radius: 8px;
+        margin-top: 3rem;
+    }
+
+    .custom-purchase h3 {
+        color: var(--primary-dark);
+        margin-top: 0;
+    }
+
+    .custom-form {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-end;
+        max-width: 500px;
+    }
+
+    .custom-form .form-group {
+        flex: 1;
+        margin-bottom: 0;
+    }
+
+    .custom-form label {
+        display: block;
+        color: var(--primary-dark);
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+    }
+
+    .custom-form input {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-family: inherit;
+        font-size: 1rem;
+    }
+
+    .custom-form input:focus {
+        outline: none;
+        border-color: var(--secondary-pink);
+        box-shadow: 0 0 0 3px rgba(255, 59, 129, 0.1);
+    }
+
+    .custom-submit {
+        background: var(--secondary-pink);
+        color: white;
+        padding: 0.75rem 2rem;
+        border: none;
+        border-radius: 4px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 1rem;
+    }
+
+    .custom-submit:hover {
+        background: #e6315a;
+        box-shadow: 0 4px 12px rgba(255, 59, 129, 0.3);
+    }
+
+    .info-box {
+        background: #e3f2fd;
+        border-left: 4px solid #2196F3;
+        padding: 1rem;
+        border-radius: 4px;
+        margin-bottom: 2rem;
+    }
+
+    .info-box p {
+        margin: 0;
+        color: #1565c0;
+        font-size: 0.95rem;
+    }
+
+    .back-link {
+        text-align: center;
+        margin-top: 2rem;
+    }
+
+    .back-link a {
+        color: var(--secondary-pink);
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .back-link a:hover {
+        text-decoration: underline;
+    }
+
+    @media (max-width: 768px) {
+        .packages-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .custom-form {
+            flex-direction: column;
+        }
+
+        .custom-submit {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="credits-container">
+    <!-- Header -->
+    <div class="credits-header">
+        <h1>💳 Buy Credits</h1>
+        <p>Get credits to post items and increase visibility</p>
+    </div>
+
+    <!-- Current Balance -->
+    <div class="credit-balance">
+        <div class="credit-balance-amount">{{ user_credits }}</div>
+        <div class="credit-balance-label">Your Current Credits</div>
+    </div>
+
+    <!-- Info Box -->
+    <div class="info-box">
+        <p>💡 <strong>How it works:</strong> Each item listing costs 10 credits. Buy credits now to start selling!</p>
+    </div>
+
+    <!-- Credit Packages -->
+    <div class="packages-grid">
+        {% for package in credit_packages %}
+        <div class="package-card {% if package.credits == 50 %}featured{% endif %}">
+            <div class="package-credits">{{ package.credits }}</div>
+            <div class="package-label">Credits</div>
+            <div class="package-price">{{ package.price }}</div>
+            <div class="package-savings">Save up to 20%</div>
+            <button class="package-btn" onclick="purchaseCredits({{ package.credits }})">
+                Buy Now
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Custom Amount -->
+    <div class="custom-purchase">
+        <h3>Or Enter Custom Amount</h3>
+        <form method="post" class="custom-form">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="amount">Number of Credits (minimum 10)</label>
+                <input type="number" id="amount" name="amount" min="10" step="1" placeholder="Enter amount" required>
+            </div>
+            <button type="submit" class="custom-submit">Purchase Credits</button>
+        </form>
+    </div>
+
+    <!-- Back Link -->
+    <div class="back-link">
+        <a href="{% url 'profile' %}">← Back to Profile</a>
+    </div>
+</div>
+
+<script>
+    function purchaseCredits(amount) {
+        // For demo purposes, we'll just submit the form with the amount
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '{% url "add_credits" %}';
+        
+        const csrf = document.querySelector('[name=csrfmiddlewaretoken]');
+        if (csrf) {
+            form.appendChild(csrf.cloneNode(true));
+        }
+        
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'amount';
+        input.value = amount;
+        form.appendChild(input);
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+</script>
+{% endblock %}
