@@ -320,6 +320,35 @@ def edit_item(request, item_id):
 
 
 @login_required(login_url='login')
+def mark_item_sold(request, item_id):
+    """Mark an item as sold"""
+    item = get_object_or_404(Item, id=item_id)
+    
+    if request.user != item.seller:
+        messages.error(request, 'You do not have permission to modify this item')
+        return redirect('item_detail', item_id=item.id)
+    
+    item.status = 'sold'
+    item.save()
+    messages.success(request, 'Item marked as sold!')
+    return redirect('dashboard')
+
+
+@login_required(login_url='login')
+def delete_item(request, item_id):
+    """Delete an item listing (credits are not refunded)"""
+    item = get_object_or_404(Item, id=item_id)
+    
+    if request.user != item.seller:
+        messages.error(request, 'You do not have permission to delete this item')
+        return redirect('item_detail', item_id=item.id)
+    
+    item.delete()
+    messages.success(request, 'Item deleted successfully. Credits spent on listing are not refunded.')
+    return redirect('dashboard')
+
+
+@login_required(login_url='login')
 def view_cart(request):
     """View shopping cart"""
     cart, created = Cart.objects.get_or_create(user=request.user)
