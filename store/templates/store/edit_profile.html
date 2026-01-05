@@ -191,9 +191,11 @@
         <div class="form-group">
             <label for="profile_image">Profile Image</label>
             {% if user_profile.profile_image %}
-                <img src="{{ user_profile.profile_image.url }}" alt="Profile Image" class="profile-image-preview">
+                <img src="{{ user_profile.profile_image.url }}" alt="Profile Image" class="profile-image-preview" id="preview">
+            {% else %}
+                <img src="" alt="Profile Image" class="profile-image-preview" id="preview" style="display: none;">
             {% endif %}
-            <input type="file" id="profile_image" name="profile_image" accept="image/*">
+            <input type="file" id="profile_image" name="profile_image" accept="image/*" onchange="previewImage(this)">
             <p style="color: #888; font-size: 0.85rem; margin-top: 0.5rem;">Optional: Upload a profile picture</p>
         </div>
 
@@ -203,4 +205,18 @@
         </div>
     </form>
 </div>
+
+<script>
+function previewImage(input) {
+    const preview = document.getElementById('preview');
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+</script>
 {% endblock %}

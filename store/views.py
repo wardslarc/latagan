@@ -557,16 +557,20 @@ def item_chat(request, item_id):
     """Chat about a specific item"""
     item = get_object_or_404(Item, id=item_id)
     
-    # Check if user has added this item to cart
-    try:
-        cart = Cart.objects.get(user=request.user)
-        has_item_in_cart = cart.items.filter(item=item).exists()
-    except Cart.DoesNotExist:
-        has_item_in_cart = False
-    
-    if not has_item_in_cart:
-        messages.error(request, 'You must add this item to your cart to chat about it')
-        return redirect('item_detail', item_id=item.id)
+    # Allow seller to access chat for their own item, or buyer who has it in cart
+    if request.user != item.seller:
+        # Check if user has added this item to cart (for buyers)
+        try:
+            cart = Cart.objects.get(user=request.user)
+            has_item_in_cart = cart.items.filter(item=item).exists()
+        except Cart.DoesNotExist:
+            has_item_in_cart = False
+        
+        if not has_item_in_cart:
+            messages.error(request, 'You must add this item to your cart to chat about it')
+            return redirect('item_detail', item_id=item.id)
+    else:
+        has_item_in_cart = True  # Sellers can always access their own item's chat
     
     # Get all messages for this item with current user
     all_messages = Message.objects.filter(item=item).filter(

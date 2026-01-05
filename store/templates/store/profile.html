@@ -8,7 +8,11 @@
     <!-- Profile Header -->
     <div class="profile-header">
         <div class="profile-avatar">
-            <div class="avatar-placeholder">{{ user.first_name|first|upper }}{{ user.last_name|first|upper }}</div>
+            {% if user_profile.profile_image %}
+                <img src="{{ user_profile.profile_image.url }}" alt="Profile Picture" class="profile-picture">
+            {% else %}
+                <div class="avatar-placeholder">{{ user.first_name|first|upper }}{{ user.last_name|first|upper }}</div>
+            {% endif %}
         </div>
         <div class="profile-info">
             <h1 class="profile-name">{{ user.first_name }} {{ user.last_name }}</h1>
@@ -181,6 +185,15 @@
 
 .profile-avatar {
     flex-shrink: 0;
+}
+
+.profile-picture {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--secondary-pink);
+    box-shadow: 0 8px 20px rgba(255, 59, 129, 0.3);
 }
 
 .avatar-placeholder {
