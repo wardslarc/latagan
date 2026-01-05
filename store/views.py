@@ -580,8 +580,15 @@ def item_chat(request, item_id):
     # Mark received messages as read
     Message.objects.filter(item=item, recipient=request.user, is_read=False).update(is_read=True)
     
-    # Get the other user (seller or buyer)
-    other_user = item.seller if item.seller != request.user else None
+    # Get the other user - find from messages or use seller if requesting user is buyer
+    other_user = None
+    if all_messages.exists():
+        # Get the other user from the last message
+        last_message = all_messages.last()
+        other_user = last_message.sender if last_message.recipient == request.user else last_message.recipient
+    else:
+        # If no messages yet, seller-buyer relationship
+        other_user = item.seller if item.seller != request.user else None
     
     if request.method == 'POST':
         content = request.POST.get('content', '').strip()
