@@ -22,6 +22,8 @@ urlpatterns = [
     path('dashboard/', views.dashboard, name='dashboard'),
     path('sell/', views.sell_item, name='sell_item'),
     path('item/<int:item_id>/edit/', views.edit_item, name='edit_item'),
+    path('item/<int:item_id>/mark-sold/', views.mark_item_sold, name='mark_item_sold'),
+    path('item/<int:item_id>/delete/', views.delete_item, name='delete_item'),
     
     # Buying & Reviews
     path('item/<int:item_id>/buy/', views.buy_item, name='buy_item'),

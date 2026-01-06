@@ -320,6 +320,35 @@ def edit_item(request, item_id):
 
 
 @login_required(login_url='login')
+def mark_item_sold(request, item_id):
+    """Mark an item as sold"""
+    item = get_object_or_404(Item, id=item_id)
+    
+    if request.user != item.seller:
+        messages.error(request, 'You do not have permission to modify this item')
+        return redirect('item_detail', item_id=item.id)
+    
+    item.status = 'sold'
+    item.save()
+    messages.success(request, 'Item marked as sold!')
+    return redirect('dashboard')
+
+
+@login_required(login_url='login')
+def delete_item(request, item_id):
+    """Delete an item listing (credits are not refunded)"""
+    item = get_object_or_404(Item, id=item_id)
+    
+    if request.user != item.seller:
+        messages.error(request, 'You do not have permission to delete this item')
+        return redirect('item_detail', item_id=item.id)
+    
+    item.delete()
+    messages.success(request, 'Item deleted successfully. Credits spent on listing are not refunded.')
+    return redirect('dashboard')
+
+
+@login_required(login_url='login')
 def view_cart(request):
     """View shopping cart"""
     cart, created = Cart.objects.get_or_create(user=request.user)
@@ -557,16 +586,20 @@ def item_chat(request, item_id):
     """Chat about a specific item"""
     item = get_object_or_404(Item, id=item_id)
     
-    # Check if user has added this item to cart
-    try:
-        cart = Cart.objects.get(user=request.user)
-        has_item_in_cart = cart.items.filter(item=item).exists()
-    except Cart.DoesNotExist:
-        has_item_in_cart = False
-    
-    if not has_item_in_cart:
-        messages.error(request, 'You must add this item to your cart to chat about it')
-        return redirect('item_detail', item_id=item.id)
+    # Allow seller to access chat for their own item, or buyer who has it in cart
+    if request.user != item.seller:
+        # Check if user has added this item to cart (for buyers)
+        try:
+            cart = Cart.objects.get(user=request.user)
+            has_item_in_cart = cart.items.filter(item=item).exists()
+        except Cart.DoesNotExist:
+            has_item_in_cart = False
+        
+        if not has_item_in_cart:
+            messages.error(request, 'You must add this item to your cart to chat about it')
+            return redirect('item_detail', item_id=item.id)
+    else:
+        has_item_in_cart = True  # Sellers can always access their own item's chat
     
     # Get all messages for this item with current user
     all_messages = Message.objects.filter(item=item).filter(
@@ -576,8 +609,15 @@ def item_chat(request, item_id):
     # Mark received messages as read
     Message.objects.filter(item=item, recipient=request.user, is_read=False).update(is_read=True)
     
-    # Get the other user (seller or buyer)
-    other_user = item.seller if item.seller != request.user else None
+    # Get the other user - find from messages or use seller if requesting user is buyer
+    other_user = None
+    if all_messages.exists():
+        # Get the other user from the last message
+        last_message = all_messages.last()
+        other_user = last_message.sender if last_message.recipient == request.user else last_message.recipient
+    else:
+        # If no messages yet, seller-buyer relationship
+        other_user = item.seller if item.seller != request.user else None
     
     if request.method == 'POST':
         content = request.POST.get('content', '').strip()
