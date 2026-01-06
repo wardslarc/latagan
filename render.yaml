@@ -2,10 +2,6 @@ services:
   - type: web
     name: latagan-app
     runtime: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: "gunicorn latagan_project.wsgi"
-    envVars:
-      - key: DEBUG
-        value: false
+    buildCommand: pip install -r requirements.txt && python manage.py migrate
       - key: PYTHON_VERSION
         value: 3.11
