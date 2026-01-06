@@ -198,9 +198,11 @@ def dashboard(request):
 
 
 @login_required(login_url='login')
+@login_required(login_url='login')
 def sell_item(request):
     """Create a new item listing"""
     categories = Category.objects.all()
+    user_profile = request.user.userprofile
     
     if request.method == 'POST':
         title = request.POST.get('title')
@@ -209,6 +211,11 @@ def sell_item(request):
         category_id = request.POST.get('category')
         condition = request.POST.get('condition')
         image = request.FILES.get('image')
+        
+        # Check if user has enough credits
+        if user_profile.credits < 10:
+            messages.error(request, f'You need at least 10 credits to post an item. You have {user_profile.credits} credits.')
+            return redirect('sell_item')
         
         category = get_object_or_404(Category, id=category_id)
         
@@ -222,10 +229,14 @@ def sell_item(request):
             image=image,
         )
         
-        messages.success(request, 'Item listed successfully!')
+        # Deduct 10 credits for posting
+        user_profile.credits -= 10
+        user_profile.save()
+        
+        messages.success(request, f'Item listed successfully! {user_profile.credits} credits remaining.')
         return redirect('item_detail', item_id=item.id)
     
-    context = {'categories': categories}
+    context = {'categories': categories, 'user_credits': user_profile.credits}
     return render(request, 'store/sell_item.html', context)
 
 
@@ -555,3 +566,42 @@ def messages_inbox(request):
         'unread_count': unread_count,
     }
     return render(request, 'store/messages_inbox.html', context)
+
+
+@login_required(login_url='login')
+def add_credits(request):
+    """Add credits to user account"""
+    user_profile = request.user.userprofile
+    
+    if request.method == 'POST':
+        amount = request.POST.get('amount')
+        
+        try:
+            amount = int(amount)
+            if amount < 10:
+                messages.error(request, 'Minimum credit purchase is 10 credits.')
+                return redirect('add_credits')
+            
+            # Add credits to profile
+            user_profile.credits += amount
+            user_profile.save()
+            
+            messages.success(request, f'Successfully added {amount} credits! Total: {user_profile.credits} credits')
+            return redirect('profile')
+        except (ValueError, TypeError):
+            messages.error(request, 'Invalid credit amount.')
+            return redirect('add_credits')
+    
+    credit_packages = [
+        {'credits': 10, 'price': '$0.99'},
+        {'credits': 50, 'price': '$4.99'},
+        {'credits': 100, 'price': '$9.99'},
+        {'credits': 250, 'price': '$24.99'},
+        {'credits': 500, 'price': '$49.99'},
+    ]
+    
+    context = {
+        'user_credits': user_profile.credits,
+        'credit_packages': credit_packages,
+    }
+    return render(request, 'store/add_credits.html', context)

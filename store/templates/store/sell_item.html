@@ -5,8 +5,29 @@
 {% block content %}
 <div style="max-width: 600px; margin: 2rem auto;">
     <div style="background: var(--light-gray); padding: 2rem; border-radius: 8px;">
-        <h2 style="color: var(--primary-dark); text-align: center; margin-bottom: 2rem;">List a New Item</h2>
+        <h2 style="color: var(--primary-dark); text-align: center; margin-bottom: 1rem;">List a New Item</h2>
         
+        <!-- Credit Status -->
+        <div style="background: white; padding: 1rem; border-radius: 8px; margin-bottom: 2rem; border-left: 4px solid var(--secondary-pink);">
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 0.5rem;">
+                <div>
+                    <p style="margin: 0; font-size: 0.95rem; color: #666;">Your Credits</p>
+                    <p style="margin: 0; font-size: 1.8rem; color: var(--secondary-pink); font-weight: 700;">{{ user_credits }}</p>
+                </div>
+                <div style="text-align: right;">
+                    <p style="margin: 0; font-size: 0.95rem; color: #666;">Cost to Post</p>
+                    <p style="margin: 0; font-size: 1.8rem; color: var(--primary-dark); font-weight: 700;">10</p>
+                </div>
+            </div>
+            {% if user_credits < 10 %}
+                <p style="margin: 0.5rem 0 0 0; color: #f44336; font-weight: 600; font-size: 0.9rem;">⚠️ Insufficient credits to post</p>
+                <a href="{% url 'add_credits' %}" style="display: inline-block; margin-top: 0.75rem; background: var(--secondary-pink); color: white; padding: 0.5rem 1rem; border-radius: 4px; text-decoration: none; font-weight: 600; font-size: 0.9rem;">Buy Credits</a>
+            {% else %}
+                <p style="margin: 0.5rem 0 0 0; color: #4CAF50; font-weight: 600; font-size: 0.9rem;">✓ Ready to post</p>
+            {% endif %}
+        </div>
+        
+        {% if user_credits >= 10 %}
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
 
@@ -55,8 +76,15 @@
                 <p style="color: #888; font-size: 0.85rem; margin-top: 0.5rem;">Recommended: Clear, well-lit photos</p>
             </div>
 
-            <button type="submit" class="form-submit">List Item</button>
+            <button type="submit" class="form-submit">List Item (10 Credits)</button>
         </form>
+        {% else %}
+        <div style="background: #fff3cd; padding: 1.5rem; border-radius: 8px; text-align: center; border: 1px solid #ffc107;">
+            <p style="margin: 0 0 1rem 0; color: #856404; font-weight: 600;">Insufficient Credits</p>
+            <p style="margin: 0 0 1.5rem 0; color: #856404;">You need at least 10 credits to list an item. Get more credits to continue selling!</p>
+            <a href="{% url 'add_credits' %}" style="background: var(--secondary-pink); color: white; padding: 0.75rem 2rem; border-radius: 4px; text-decoration: none; font-weight: 600; display: inline-block;">Buy Credits Now</a>
+        </div>
+        {% endif %}
 
         <p style="text-align: center; color: #888; margin-top: 1.5rem;">
             <a href="{% url 'dashboard' %}" style="color: var(--secondary-pink); text-decoration: none;">Back to Dashboard</a>

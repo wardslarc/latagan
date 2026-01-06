@@ -69,6 +69,7 @@ class UserProfile(models.Model):
     rating = models.DecimalField(max_digits=3, decimal_places=2, default=5.0)
     phone = models.CharField(max_length=15, blank=True)
     address = models.TextField(blank=True)
+    credits = models.PositiveIntegerField(default=20)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
