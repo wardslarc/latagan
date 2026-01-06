@@ -1,0 +1,316 @@
+{% extends 'base.html' %}
+
+{% block title %}Preferences - Latagan{% endblock %}
+
+{% block content %}
+<style>
+    .preferences-container {
+        max-width: 700px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .preferences-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .preferences-header h1 {
+        color: var(--primary-dark);
+        margin: 0 0 0.5rem 0;
+        font-size: 2rem;
+    }
+
+    .preferences-header p {
+        color: #666;
+        margin: 0;
+    }
+
+    .preferences-section {
+        background: white;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e0e0e0;
+        margin-bottom: 1.5rem;
+    }
+
+    .preferences-section h2 {
+        color: var(--primary-dark);
+        font-size: 1.3rem;
+        margin: 0 0 1.5rem 0;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #e0e0e0;
+    }
+
+    .preference-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem;
+        border-radius: 4px;
+        margin-bottom: 1rem;
+        background: #f9f9f9;
+    }
+
+    .preference-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .preference-item:hover {
+        background: #f0f0f0;
+    }
+
+    .preference-label {
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+    }
+
+    .preference-title {
+        font-weight: 600;
+        color: var(--primary-dark);
+    }
+
+    .preference-description {
+        font-size: 0.85rem;
+        color: #666;
+    }
+
+    .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 28px;
+    }
+
+    .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: 0.3s;
+        border-radius: 28px;
+    }
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 22px;
+        width: 22px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: 0.3s;
+        border-radius: 50%;
+    }
+
+    input:checked + .slider {
+        background-color: var(--secondary-pink);
+    }
+
+    input:checked + .slider:before {
+        transform: translateX(22px);
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .btn {
+        flex: 1;
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 4px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        text-align: center;
+        transition: all 0.2s ease;
+        font-size: 1rem;
+    }
+
+    .btn-primary {
+        background: var(--secondary-pink);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #e6315a;
+        box-shadow: 0 4px 12px rgba(255, 59, 129, 0.3);
+    }
+
+    .btn-secondary {
+        background: white;
+        color: var(--primary-dark);
+        border: 2px solid #ddd;
+    }
+
+    .btn-secondary:hover {
+        border-color: var(--secondary-pink);
+        color: var(--secondary-pink);
+    }
+
+    @media (max-width: 768px) {
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+        }
+
+        .preference-item {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .toggle-switch {
+            align-self: flex-start;
+        }
+    }
+</style>
+
+<div class="preferences-container">
+    <div class="preferences-header">
+        <h1>⚙️ Preferences</h1>
+        <p>Customize your Latagan experience</p>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <!-- Notification Preferences -->
+        <div class="preferences-section">
+            <h2>📬 Notifications</h2>
+
+            <div class="preference-item">
+                <div class="preference-label">
+                    <span class="preference-title">New Messages</span>
+                    <span class="preference-description">Receive notifications when someone messages you</span>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" name="notify_messages" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="preference-item">
+                <div class="preference-label">
+                    <span class="preference-title">Item Sold</span>
+                    <span class="preference-description">Get notified when one of your items is purchased</span>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" name="notify_sold" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="preference-item">
+                <div class="preference-label">
+                    <span class="preference-title">New Reviews</span>
+                    <span class="preference-description">Receive alerts for new reviews on your items</span>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" name="notify_reviews" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="preference-item">
+                <div class="preference-label">
+                    <span class="preference-title">Marketing Emails</span>
+                    <span class="preference-description">Receive news and special offers from Latagan</span>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" name="notify_marketing">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Privacy Preferences -->
+        <div class="preferences-section">
+            <h2>🔒 Privacy</h2>
+
+            <div class="preference-item">
+                <div class="preference-label">
+                    <span class="preference-title">Public Profile</span>
+                    <span class="preference-description">Allow other users to view your public profile</span>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" name="public_profile" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="preference-item">
+                <div class="preference-label">
+                    <span class="preference-title">Show Online Status</span>
+                    <span class="preference-description">Let others see when you're online</span>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" name="show_online">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="preference-item">
+                <div class="preference-label">
+                    <span class="preference-title">Allow Messages</span>
+                    <span class="preference-description">Accept messages from other users</span>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" name="allow_messages" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Display Preferences -->
+        <div class="preferences-section">
+            <h2>🎨 Display</h2>
+
+            <div class="preference-item">
+                <div class="preference-label">
+                    <span class="preference-title">Theme</span>
+                    <span class="preference-description">Choose your preferred color theme</span>
+                </div>
+                <select name="theme" style="padding: 0.5rem; border-radius: 4px; border: 1px solid #ddd;">
+                    <option value="dark">Dark</option>
+                    <option value="light">Light (Coming Soon)</option>
+                </select>
+            </div>
+
+            <div class="preference-item">
+                <div class="preference-label">
+                    <span class="preference-title">Items Per Page</span>
+                    <span class="preference-description">Set how many items to display per page</span>
+                </div>
+                <select name="items_per_page" style="padding: 0.5rem; border-radius: 4px; border: 1px solid #ddd;">
+                    <option value="12">12 items</option>
+                    <option value="24">24 items</option>
+                    <option value="36">36 items</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Save Preferences</button>
+            <a href="{% url 'profile' %}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

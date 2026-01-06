@@ -469,6 +469,89 @@ def toggle_user_mode(request):
         messages.success(request, f'Switched to {user_profile.current_mode.title()} mode')
         return redirect('profile')
     return redirect('profile')
+
+
+@login_required(login_url='login')
+def edit_profile(request):
+    """Edit user profile information"""
+    user_profile = UserProfile.objects.get(user=request.user)
+    
+    if request.method == 'POST':
+        # Update User model
+        request.user.first_name = request.POST.get('first_name', request.user.first_name)
+        request.user.last_name = request.POST.get('last_name', request.user.last_name)
+        request.user.email = request.POST.get('email', request.user.email)
+        request.user.save()
+        
+        # Update UserProfile model
+        user_profile.bio = request.POST.get('bio', user_profile.bio)
+        user_profile.phone = request.POST.get('phone', user_profile.phone)
+        user_profile.address = request.POST.get('address', user_profile.address)
+        
+        # Handle profile image if uploaded
+        if 'profile_image' in request.FILES:
+            user_profile.profile_image = request.FILES['profile_image']
+        
+        user_profile.save()
+        
+        messages.success(request, 'Profile updated successfully!')
+        return redirect('profile')
+    
+    context = {
+        'user_profile': user_profile,
+    }
+    return render(request, 'store/edit_profile.html', context)
+
+
+@login_required(login_url='login')
+def change_password(request):
+    """Change user password"""
+    if request.method == 'POST':
+        old_password = request.POST.get('old_password', '')
+        new_password = request.POST.get('new_password', '')
+        confirm_password = request.POST.get('confirm_password', '')
+        
+        # Validate old password
+        if not request.user.check_password(old_password):
+            messages.error(request, 'Old password is incorrect.')
+            return redirect('change_password')
+        
+        # Validate new password
+        if len(new_password) < 8:
+            messages.error(request, 'New password must be at least 8 characters long.')
+            return redirect('change_password')
+        
+        # Confirm passwords match
+        if new_password != confirm_password:
+            messages.error(request, 'New passwords do not match.')
+            return redirect('change_password')
+        
+        # Update password
+        request.user.set_password(new_password)
+        request.user.save()
+        
+        messages.success(request, 'Password changed successfully! Please log in again.')
+        return redirect('login')
+    
+    return render(request, 'store/change_password.html')
+
+
+@login_required(login_url='login')
+def preferences(request):
+    """User preferences"""
+    user_profile = UserProfile.objects.get(user=request.user)
+    
+    if request.method == 'POST':
+        # Handle any preference settings here
+        messages.success(request, 'Preferences updated successfully!')
+        return redirect('profile')
+    
+    context = {
+        'user_profile': user_profile,
+    }
+    return render(request, 'store/preferences.html', context)
+
+
 @login_required(login_url='login')
 def item_chat(request, item_id):
     """Chat about a specific item"""
